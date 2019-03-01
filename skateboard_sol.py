@@ -1,5 +1,5 @@
 from math import sin, exp, cos, pi
-import sys, trajectoire
+import sys, skateboard
 
 def xi(s):
     """
@@ -26,9 +26,29 @@ def s(m, t, mu, y0):
     et y0 (le point de depart).
     La racine correspondra au moment ou le mobile passe par le point p1.
     """
-    res = trajectoire.solution(lambda x: dxi(x), lambda x: ddxi(x),
+    res = skateboard.solution(lambda x: dxi(x), lambda x: ddxi(x),
                                mu, m, t, 2, y0)
-    return res[1][0]
+    return res[1][0] #retourne s(t), donc la premiere composante du deuxieme
+    # couple du tableau
+
+def ds(m, t, mu, y0):
+    """
+    Fonction dont on va rechercher les racines (en fonction du temps) dependant
+    de plusieurs parametres : m (la masse), mu (le coefficient de frottements)
+    et y0 (le point de depart).
+    La racine correspondra au moment ou le mobile passe par le point p1.
+    """
+    res = skateboard.solution(lambda x: dxi(x), lambda x: ddxi(x),
+                               mu, m, t, 2, y0)
+    return res[1][1] #retourne ds(t), donc la deuxieme composante du deuxieme
+    # couple du tableau
+
+def afficher_s(tab):
+    res = ""
+    for i in range(0, 1000):
+        res += str(tab[i][0])
+        res += "\n"
+    print(res)
 
 def time_p0(m, c, mu):
     """
@@ -37,23 +57,24 @@ def time_p0(m, c, mu):
     (parametre de la fonction a).
     """
     y0 = xi(c)
-    if(mu == 0):
-        if (c > -4):
-            return "Pas de solution"
-        else :
-            t = 10 * (-c)
+    if (c > -4):
+        return "Pas de solution"
+    if (mu == 0):
+        t = 30
     else:
-        t = 100 * (-c)/mu
-    res = trajectoire.solution(lambda x: dxi(x), lambda x: ddxi(x),
+        t = 30
+    res = skateboard.solution(lambda x: dxi(x), lambda x: ddxi(x),
                                mu, m, t, 10001, y0)
+    #(S(t), dS(t))
     n = 1
     while (n < 10001 and res[n][0] < 0):
         n += 1
     t0 = (t / 10000) * (n - 1)
     t = (t / 10000) * n
-    print(n)
+    afficher_s(res)
+    #print(n)
     if (s(m, t, mu, y0) < 0):
-        return "Pas de solution"
+        return "Pas de solution" #attention chercher la bonne borne sur le temps
     else:
         x = (t0 + t) / 2
         while (t - t0 > 1e-8 and abs(s(m, x, mu, y0)) > 1e-100):
@@ -64,10 +85,19 @@ def time_p0(m, c, mu):
             x = (t0 + t) / 2
         return x
 
+def q4(m, c, mu):
+    t = time_p0(m, c, mu)
+    y0 = xi(c)
+    cst = ds(m, t, mu, y0)
+    cst1 = dxi(s(m, t, mu, y0))
+    return (t, (cst1[0]*cst, cst1[1]*cst))
+
 if __name__ == "__main__":
     """
     Methode "main", elle lancera la methode principale de time_p1 avec les
     valeurs donnees en ligne de commande.
     """
-    t1 = time_p0(1, -3.745, 0)
-    print(t1)
+    c = float(sys.argv[1])
+    mu = float(sys.argv[2])
+    t = q4(1, c, mu)
+    print(t)
