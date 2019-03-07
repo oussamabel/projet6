@@ -46,23 +46,23 @@ def ds(m, t, mu, y0):
 def afficher_s(tab):
     res = ""
     for i in range(0, 1000):
-        res += str(tab[i][0])
+        res += str(i) + " : " + str(tab[i][0])
         res += "\n"
     print(res)
 
 def time_p0(m, c, mu):
     """
     Fonction principale afin de rechercher le moment ou le mobile passe par
-    le point p1 dependant de plusieurs parametres : m (la masse) et a
+    le point p0 dependant de plusieurs parametres : m (la masse) et a
     (parametre de la fonction a).
     """
     y0 = xi(c)
     if (c > -4):
         return "Pas de solution"
     if (mu == 0):
-        t = 30
+        t = 10
     else:
-        t = 30
+        t = 10* (1/mu) * (1/abs(c))
     res = skateboard.solution(lambda x: dxi(x), lambda x: ddxi(x),
                                mu, m, t, 10001, y0)
     #(S(t), dS(t))
@@ -71,8 +71,9 @@ def time_p0(m, c, mu):
         n += 1
     t0 = (t / 10000) * (n - 1)
     t = (t / 10000) * n
-    afficher_s(res)
-    #print(n)
+    #afficher_s(res)
+    print("indice du tableau", n, "sur", 10000)
+    print("bissection avec t0 = ", t0, " et t1 = ", t,"\net ", "S(t0) = ", res[n-1][0], " S(t1) = ", res[n][0])
     if (s(m, t, mu, y0) < 0):
         return "Pas de solution" #attention chercher la bonne borne sur le temps
     else:
@@ -87,14 +88,14 @@ def time_p0(m, c, mu):
 
 def q4(m, c, mu):
     t = time_p0(m, c, mu)
-    y0 = xi(c)
-    cst = ds(m, t, mu, y0)
-    cst1 = dxi(s(m, t, mu, y0))
-    return (t, (cst1[0]*cst, cst1[1]*cst))
+    y0 = [c,0]
+    s_t = s(m, t, mu, y0)
+    ds_t = ds(m, t, mu, y0)
+    return (t, (ds_t, (s_t +2)*ds_t)) #t t.q. S(t)=0 et le vecteur vitesse en ce temps
 
 if __name__ == "__main__":
     """
-    Methode "main", elle lancera la methode principale de time_p1 avec les
+    Methode "main", elle lancera la methode principale de time_p0 avec les
     valeurs donnees en ligne de commande.
     """
     c = float(sys.argv[1])
