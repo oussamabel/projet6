@@ -56,13 +56,13 @@ def time_p0(m, c, mu):
     le point p0 dependant de plusieurs parametres : m (la masse) et a
     (parametre de la fonction a).
     """
-    y0 = xi(c)
+    y0 = [c, 0]
     if (c > -4):
         return "Pas de solution"
     if (mu == 0):
         t = 10
     else:
-        t = 10* (1/mu) * (1/abs(c))
+        t = 15* (1/mu)
     res = skateboard.solution(lambda x: dxi(x), lambda x: ddxi(x),
                                mu, m, t, 10001, y0)
     #(S(t), dS(t))
@@ -72,13 +72,13 @@ def time_p0(m, c, mu):
     t0 = (t / 10000) * (n - 1)
     t = (t / 10000) * n
     #afficher_s(res)
-    print("indice du tableau", n, "sur", 10000)
-    print("bissection avec t0 = ", t0, " et t1 = ", t,"\net ", "S(t0) = ", res[n-1][0], " S(t1) = ", res[n][0])
+    #print("indice du tableau", n, "sur", 10000)
+    #print("bissection avec t0 = ", t0, " et t1 = ", t,"\net ", "S(t0) = ", res[n-1][0], " S(t1) = ", res[n][0])
     if (s(m, t, mu, y0) < 0):
         return "Pas de solution" #attention chercher la bonne borne sur le temps
     else:
         x = (t0 + t) / 2
-        while (t - t0 > 1e-8 and abs(s(m, x, mu, y0)) > 1e-100):
+        while (t - t0 > 1e-8 and abs(s(m, x, mu, y0)) > 1e-8):
             if (s(m, x, mu, y0) > 0):
                 t = x
             else:
@@ -88,10 +88,16 @@ def time_p0(m, c, mu):
 
 def q4(m, c, mu):
     t = time_p0(m, c, mu)
-    y0 = [c,0]
-    s_t = s(m, t, mu, y0)
-    ds_t = ds(m, t, mu, y0)
-    return (t, (ds_t, (s_t +2)*ds_t)) #t t.q. S(t)=0 et le vecteur vitesse en ce temps
+    if (t != "Pas de solution"):
+        y0 = [c,0]
+        s_t = s(m, t, mu, y0)
+        ds_t = ds(m, t, mu, y0)
+        return (t, (ds_t, (s_t +2)*ds_t)) #t t.q. S(t)=0 et le vecteur vitesse en ce temps
+    else:
+        raise Exception("Pas de solution pour ces valeurs")
+
+def q5(m, c, mu):
+    return None #TODO
 
 if __name__ == "__main__":
     """

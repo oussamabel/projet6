@@ -9,7 +9,7 @@ def solution(dxi, ddxi, mu, m, t1, n, y0):
     seconde de xi) ainsi que d'un coefficient de frottements mu, une masse m
     et d'un point de depart y0.
     """
-    t = np.linspace(0, t1, n)
+    t = np.linspace(0, float(t1),float(n))
     return edo(f, y0, t, args=(m, mu, dxi, ddxi), mxstep=10000)
 
 def f(y, t, m, mu, dxi, ddxi):
