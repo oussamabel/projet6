@@ -1,5 +1,8 @@
 from math import sin, cos, pi
 import sys, skateboard
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.optimize import brentq
 
 def xi(s):
     """
@@ -65,7 +68,12 @@ def afficher_s(tab):
         res += str(i) + " : " + str(tab[i][0])
         res += "\n"
     print(res)
-
+def solve(mu,m,c,is_list):
+    if is_list:
+        return lambda l:skateboard.solution(dxi,ddxi,mu,m,l,42,c)[:,0]
+    else:
+        return lambda t:skateboard.solution(dxi,ddxi,mu,m,[0,t],42,c)[1][0]
+    
 def time_p0(m, c, mu):
     """
     Fonction principale afin de rechercher le moment ou le mobile passe par
@@ -74,39 +82,27 @@ def time_p0(m, c, mu):
     """
     y0 = [c, 0]
     if (c > -4):
-        return "Pas de solution"
-    t = 15* (1/mu)
-    res = skateboard.solution(dxi, ddxi, mu, m, t, 10001, y0)
-    #(S(t), dS(t))
-    n = 1
-    while (n < 10001 and res[n][0] < 0):
-        n += 1
-    t0 = (t / 10000) * (n - 1)
-    t = (t / 10000) * n
-    #afficher_s(res)
-    #print("indice du tableau", n, "sur", 10000)
-    #print("bissection avec t0 = ", t0, " et t1 = ", t,"\net ", "S(t0) = ", res[n-1][0], " S(t1) = ", res[n][0])
-    if (s(m, t, mu, y0) < 0):
-        return "Pas de solution" #attention chercher la bonne borne sur le temps
-    else:
-        x = (t0 + t) / 2
-        while (t - t0 > 1e-8 and abs(s(m, x, mu, y0)) > 1e-8):
-            if (s(m, x, mu, y0) > 0):
-                t = x
-            else:
-                t0 = x
-            x = (t0 + t) / 2
-        return x
+        return None
+    S = solve(mu,m,c,False)
+    """
+    t=np.linspace(0,100,200)
+    plt.plot(t,[S(t) for t in t])
+    plt.plot([t[0],t[-1]],[0,0])
+    plt.xlabel("t")
+    plt.savefig("/home/obi/public_html/plot.png")
+    print("plotted")
+    """
+    b=1
+    while S(b)<0:
+        b=b+1 #FIXME ou 0.001 si ça marche pas
+    root=brentq(S,0,b)#S(0)=c<0 ok ,donc il suffit de chercher l'autre borne
+    return root #bon en réalité on est p-ê passé au-dessus de qqch...
 
 def q4(m, c, mu):
     t = time_p0(m, c, mu)
-    if (t != "Pas de solution"):
-        y0 = [c,0]
-        s_t = s(m, t, mu, y0)
-        ds_t = ds(m, t, mu, y0)
-        return (t, (ds_t, (s_t +2)*ds_t)) #t t.q. S(t)=0 et le vecteur vitesse en ce temps
-    else:
-        raise Exception("Pas de solution pour ces valeurs")
+    ds_t= skateboard.solution(dxi,ddxi,mu,m,[0,t],42,c)[1][1]
+    if t != None:
+        return t,(ds_t,2*ds_t)
 
 def q5(m, c, mu,  time = False):
     v = q4(m, c, mu)[1]
