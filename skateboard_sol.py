@@ -75,12 +75,8 @@ def time_p0(m, c, mu):
     y0 = [c, 0]
     if (c > -4):
         return "Pas de solution"
-    if (mu == 0):
-        t = 10
-    else:
-        t = 15* (1/mu)
-    res = skateboard.solution(lambda x: dxi(x), lambda x: ddxi(x),
-                               mu, m, t, 10001, y0)
+    t = 15* (1/mu)
+    res = skateboard.solution(dxi, ddxi, mu, m, t, 10001, y0)
     #(S(t), dS(t))
     n = 1
     while (n < 10001 and res[n][0] < 0):
