@@ -21,17 +21,10 @@ def f(y, t, m, mu, dgamma, ddgamma):
     s, ds = y
     dgamma_s = dgamma(s)
     ddgamma_s = ddgamma(s)
-    a = prod(dgamma_s, ddgamma_s) * ds**2
+    a = np.dot(dgamma_s, ddgamma_s) * ds**2
     b = 9.81 * dgamma_s[1]
     c = (mu / m) * ds
-    d = prod(dgamma_s, dgamma_s)
+    d = np.dot(dgamma_s, dgamma_s)
     res = ((-a - b)/d) - c
     dydt = [ds, res]
     return dydt
-
-def prod(u, v):
-    """
-    Methode permetant de retourner le produit scalaire entre deux vecteurs de
-    dimension 2.
-    """
-    return u[0] * v[0] + u[1] * v[1]
