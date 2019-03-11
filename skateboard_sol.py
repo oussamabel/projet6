@@ -104,53 +104,35 @@ def q4(m, c, mu):
     if t != None:
         return t,(ds_t,2*ds_t)
 
-def q5(m, c, mu,  time = False):
-    v = q4(m, c, mu)[1]
-    v_x = v[0]
-    v_y = v[1]
-    t = 2 * v_y / 9.81
-    d = v_x * t
-    if (time):
-        return (d, t)
-    else:
-        return d
+def q5_time_and_dist(m, c, mu):
+    v = q4(m, c, mu)
+    if v != None:
+        v_x, v_y = v[1]
+        t = 2 * v_y / 9.81
+        return t, t * v_x
 
-def q6(m, c, mu): #a adapter
-    (d, t) = q5(m, c, mu, True)
+def q5(m, c, mu):
+    return q5_time_and_dist(m, c, mu)[1]
+
+def q6(m, c, mu):
     """
-        Fonction principale afin de rechercher le moment ou le mobile passe par
-        le point p0 dependant de plusieurs parametres : m (la masse) et a
-        (parametre de la fonction a).
-        """
-    y0 = [0, 0]
-    if (c > -4):
-        return "Pas de solution"
-    if (mu == 0):
-        t = 10
-    else:
-        t = 15 * (1 / mu)
-    res = skateboard.solution(lambda x: deta(x), lambda x: ddeta(x),
-                              mu, m, t, 10001, y0)
-    # (S(t), dS(t))
-    n = 1
-    while (n < 10001 and res[n][0] < 0):
-        n += 1
-    t0 = (t / 10000) * (n - 1)
-    t = (t / 10000) * n
-    # afficher_s(res)
-    # print("indice du tableau", n, "sur", 10000)
-    # print("bissection avec t0 = ", t0, " et t1 = ", t,"\net ", "S(t0) = ", res[n-1][0], " S(t1) = ", res[n][0])
-    if (s(m, t, mu, y0) < 0):
-        return "Pas de solution"  # attention chercher la bonne borne sur le temps
-    else:
-        x = (t0 + t) / 2
-        while (t - t0 > 1e-8 and abs(s(m, x, mu, y0)) > 1e-8):
-            if (s(m, x, mu, y0) > 0):
-                t = x
-            else:
-                t0 = x
-            x = (t0 + t) / 2
-        return x
+    Fonction principale afin de rechercher le moment ou le mobile passe par
+    le point p0 dependant de plusieurs parametres : m (la masse) et a
+    (parametre de la fonction a).
+    """
+    res=q4(m,c,mu)
+    if res != None:
+        t1=res[0]
+        t2= q5_time_and_dist(m, c, mu)[0]
+        y0 = [0, 0] #FIXME pas zéro la vitesse
+        #np.dot(deta(0), v) * deta(0)?
+        sol = solve(mu,m,c,False)
+        S=lambda t:sol(t)-pi
+        b=1
+        while S(b)<0:
+            b=b+1
+        t3=brentq(S,0,b)
+        return t1+t2+t3
 
 
 if __name__ == "__main__":
