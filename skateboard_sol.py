@@ -92,9 +92,10 @@ def time_p0(m, c, mu):
     plt.savefig("/home/obi/public_html/plot.png")
     print("plotted")
     """
-    b=1
+
+    b=0
     while S(b)<0:
-        b=b+1 #FIXME ou 0.001 si ça marche pas
+        b=b-(c*mu*$) #FIXME robuste mais lent...
     root=brentq(S,0,b)#S(0)=c<0 ok ,donc il suffit de chercher l'autre borne
     return root #bon en réalité on est p-ê passé au-dessus de qqch...
 
