@@ -2,7 +2,7 @@
 from scipy.integrate import odeint as edo
 import numpy as np
 
-def solution(dgamma, ddgamma, mu, m, t, n, c): #FIXME t1 avant...
+def solution(dgamma, ddgamma, mu, m, t, n, y0): #FIXME t1 avant...
     """
     Méthode afin de calculer la solution approchée d'une EDO.
     Cette méthode retourne une liste de n couples (S(t), dS(t)) avec t variant
@@ -10,7 +10,6 @@ def solution(dgamma, ddgamma, mu, m, t, n, c): #FIXME t1 avant...
     (derivée seconde de gamma) ainsi que d'un coefficient de frottement mu,
     d'une masse m et du paramètre c.
     """
-    y0=[c,0]
     return edo(f, y0, t, args=(m, mu, dgamma, ddgamma), mxstep=10000)
 
 def f(y, t, m, mu, dgamma, ddgamma):
